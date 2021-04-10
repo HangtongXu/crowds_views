@@ -700,7 +700,7 @@
         let a = document.createElement('a')
         a.href ="http://localhost:8090/fileDownload?mid="+row.id
         a.click();
-        this.$message.success('下载完成')
+        this.$message.success('下载成功')
       },
       details(row) {
         this.detail = true
