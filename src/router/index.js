@@ -12,6 +12,10 @@ import Work from '../views/work'
 import MWork from '../views/mwork'
 import Order from '../views/order'
 import Purse from '../views/purse'
+import Auction from '../views/auction'
+import pAuction from '../views/pAuction'
+import wAuction from '../views/wAuction'
+import Tips from '../views/tidings'
 Vue.use(Router);
 
 //解决路由重定向发生 Redirected when going from "/home" to "/logout" via a navigation guard 错误
@@ -53,6 +57,21 @@ export default new Router({
       component:Center,
       children: [
         {
+          path:'/pAuction',
+          name:'pAuction',
+          component:pAuction
+        },
+        {
+          path:'/tips',
+          name:'Tips',
+          component:Tips
+        },
+        {
+          path:'/wAuction',
+          name:'wAuction',
+          component:wAuction
+        },
+        {
           path:'/info',
           name:'info',
           component:Pinfo
@@ -79,6 +98,11 @@ export default new Router({
           path:'/purse',
           name:'Purse',
           component:Purse
+        },
+        {
+          path:'/auction',
+          name:'Auction',
+          component:Auction
         }
       ]
     },

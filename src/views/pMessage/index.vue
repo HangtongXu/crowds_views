@@ -238,7 +238,7 @@
           }
         })
           .then(function (resp) {
-            console.log(resp.data);
+            // console.log(resp.data);
             vm.userInfo = resp.data
             // switch (vm.userInfo.sex) {
             //   case 0:
@@ -272,10 +272,12 @@
           }
         })
           .then(function (resp) {
+            console.log(resp.data)
             if (resp.data == 'success') {
+              // vm.$message.success('更新成功');
             }
             else {
-              vm.$message.error('更新失败');
+
             }
           })
           .catch(function () {

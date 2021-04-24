@@ -115,10 +115,11 @@
         style="width: 100%"
         v-loading="listLoading"
         :border="true"
+        :key="detailsData_reflush"
       >
         <el-table-column
           prop="id"
-          label="订单编号"
+          label="编号"
           width="150">
           <template slot-scope="scope">
             <i class="el-icon-star-on"></i>
@@ -261,9 +262,6 @@
     name: "index",
     props: ['index'],
     components: {Pagination, Map},
-    created() {
-      this.refresh();
-    },
     data() {
       return {
         tableData: [],
@@ -327,7 +325,8 @@
         wid: 0,
         mid: 0,
         mapOpen: false,
-        reflush:true
+        reflush:true,
+        detailsData_reflush:true
       }
     },
     watch: {
@@ -338,14 +337,26 @@
         else {
           this.changeDataSource = true;
         }
+        console.log(this.changeDataSource)
         this.refresh(newValue)
       },
       tableData:function (newvalue, oldvalue) {
-        this.reflush=!this.reflush
+        this.detailsData_reflush=false
+        this.reflush=true
+      },
+      detailsData:function (newvalue, oldvalue) {
+        this.detailsData_reflush=true
+        this.reflush=false
       }
     },
     created() {
       this.refresh(this.$route.params.index)
+      if (this.$route.params.index == 1) {
+        this.changeDataSource = false;
+      }
+      else {
+        this.changeDataSource = true;
+      }
     },
     methods: {
       refresh(value) {
@@ -354,19 +365,19 @@
         let vm = this;
         switch (value) {
           case '1':
-            console.log(1);
+            // console.log(1);
             vm.fresh_1();
             break;
           case '2':
-            console.log(2);
+            // console.log(2);
             vm.fresh_2();
             break;
           case '3':
-            console.log(3);
+            // console.log(3);
             vm.fresh_3();
             break;
           case '4':
-            console.log(3);
+            // console.log(3);
             vm.fresh_4();
             break;
         }
@@ -412,8 +423,9 @@
           }
         })
           .then(function (resp) {
+            // console.log(resp.data)
             vm.detailsData = resp.data.list;
-            console.log(vm.detailsData)
+            // console.log(vm.detailsData)
             vm.total = resp.data.total
             setTimeout(() => {
               vm.listLoading = false;
@@ -591,6 +603,10 @@
         }
         else if (res.data == 'error') {
           this.$message.error('文件上传失败');
+        }
+        else{
+          this.$message.success('文件上传成功');
+          this.drawer=false;
         }
         this.loading = false;
       },

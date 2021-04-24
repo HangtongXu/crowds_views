@@ -1,140 +1,6 @@
 <template>
   <div class="box">
-    <div v-if="addwork && editWork  && index==1">
-      <div class="addbt">
-        <el-button type="success" @click="openAdd" plain>添加任务</el-button>
-        <el-button icon="el-icon-refresh" circle v-if="refresh" @click="fresh"></el-button>
-        <el-button icon="el-icon-loading" circle v-else></el-button>
-      </div>
-
-      <div>
-        <el-table
-          :data="
-          list.filter(data => (!search || data.name.toLowerCase().includes(search.toLowerCase())||data.id==search.toLowerCase()))"
-          style="width: 100%"
-          v-loading="listLoading"
-          :border="true"
-          @row-dblclick="details"
-        >
-          <el-table-column
-            prop="id"
-            label="编号"
-            width="69">
-          </el-table-column>
-          <el-table-column
-            prop="createtime"
-            label="发布日期"
-            sortable
-            width="190">
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.createtime }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="任务名称"
-            width="150">
-          </el-table-column>
-          <el-table-column
-            label="完成形式"
-            width="150">
-            <template slot-scope="scope">
-              <span v-if="scope.row.form==1">实时数据</span>
-              <span v-else>历史数据采集</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="资格要求"
-            width="100">
-            <template slot-scope="scope">
-
-              <el-popover trigger="hover" placement="top">
-                <h4>其他要求</h4>
-                <p>{{ scope.row.message }}</p>
-                <div slot="reference" class="name-wrapper">
-                  <span v-if="scope.row.demand==1">小学</span>
-                  <span v-if="scope.row.demand==2">专科</span>
-                  <span v-if="scope.row.demand==3">本科</span>
-                  <span v-if="scope.row.demand==4">硕士及以上</span>
-                </div>
-              </el-popover>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="任务人数剩余"
-            width="80"
-            prop="members">
-
-          </el-table-column>
-          <el-table-column
-            prop="money"
-            label="任务赏金"
-            width="80">
-          </el-table-column>
-          <el-table-column
-            prop="deadline"
-            label="截止日期"
-            sortable
-            width="190"
-          >
-            <template slot-scope="scope">
-              <!--<i class="el-icon-time"></i>-->
-              <span style="margin-left: 10px">{{ scope.row.deadline }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="当前状态"
-            width="60">
-            <template slot-scope="scope">
-              <div style="font-size: 25px" v-if="scope.row.state==0">
-                <el-tooltip class="item" effect="dark" content="服务器正在准备派发" placement="top-start">
-                  <i class="el-icon-upload"></i>
-                </el-tooltip>
-              </div>
-              <div style="font-size: 25px" v-if="scope.row.state==1">
-                <el-tooltip class="item" effect="dark" content="服务器正在派发" placement="top-start">
-                  <i class="el-icon-position"></i>
-                </el-tooltip>
-              </div>
-              <div style="font-size: 25px" v-if="scope.row.state==2">
-                <el-tooltip class="item" effect="dark" content="服务器派发完毕" placement="top-start">
-                  <i class="el-icon-circle-check"></i>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="right">
-            <template slot="header" slot-scope="scope">
-              <el-input
-                v-model="search"
-                size="mini"
-                placeholder="输入关键字"/>
-            </template>
-            <template slot-scope="scope">
-              <el-button
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                @click="handleEdit(scope.$index, scope.row)"></el-button>
-              <el-button
-                size="mini"
-                solt="reference"
-                icon="el-icon-delete"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              ></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div style="margin: 5px auto;float: right">
-        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
-                    @pagination="fresh"/>
-      </div>
-    </div>
-    <div v-if="addwork && editWork  && index==2">
+    <div v-if="addwork && editWork">
       <div class="addbt">
         <el-button type="success" @click="openAdd" plain>添加任务</el-button>
         <el-button icon="el-icon-refresh" circle v-if="refresh" @click="refreshed(index)"></el-button>
@@ -149,6 +15,7 @@
           v-loading="listLoading"
           :border="true"
           @row-dblclick="details"
+          :key="tbChange"
         >
           <el-table-column
             prop="id"
@@ -221,163 +88,23 @@
             label="当前状态"
             width="60">
             <template slot-scope="scope">
-              <div style="font-size: 25px" v-if="scope.row.state==0">
+              <div style="font-size: 25px" v-if="scope.row.state==0 && scope.row.distribute==0">
                 <el-tooltip class="item" effect="dark" content="服务器正在准备派发" placement="top-start">
                   <i class="el-icon-upload"></i>
                 </el-tooltip>
               </div>
-              <div style="font-size: 25px" v-if="scope.row.state==1">
+              <div style="font-size: 25px" v-if="scope.row.state==1 && scope.row.distribute==0">
                 <el-tooltip class="item" effect="dark" content="服务器正在派发" placement="top-start">
                   <i class="el-icon-position"></i>
                 </el-tooltip>
               </div>
-              <div style="font-size: 25px" v-if="scope.row.state==2">
-                <el-tooltip class="item" effect="dark" content="服务器派发完毕" placement="top-start">
-                  <i class="el-icon-circle-check"></i>
-                </el-tooltip>
-              </div>
-              <div style="font-size: 25px" v-if="scope.row.state==3">
-                <el-tooltip class="item" effect="dark" content="任务已结束" placement="top-start">
-                  <i class="el-icon-s-claim"></i>
-                </el-tooltip>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column
-            align="right">
-            <template slot="header" slot-scope="scope">
-              <el-input
-                v-model="search"
-                size="mini"
-                placeholder="输入关键字"/>
-            </template>
-            <template slot-scope="scope">
-              <el-tooltip class="item" effect="dark" content="下载文件至本地" placement="top-start">
-                <el-button
-                  size="mini"
-                  icon="el-icon-download"
-                  type="primary"
-                  @click="handleDownload(scope.$index, scope.row)"></el-button>
-              </el-tooltip>
-              <el-button
-                size="mini"
-                solt="reference"
-                icon="el-icon-delete"
-                type="danger"
-                @click="handleDelete(scope.$index, scope.row)"
-              ></el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div style="margin: 5px auto;float: right">
-        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
-                    @pagination="fresh2"/>
-      </div>
-    </div>
-    <div v-if="addwork && editWork  && index==3">
-      <div class="addbt">
-        <el-button type="success" @click="openAdd" plain>添加任务</el-button>
-        <el-button icon="el-icon-refresh" circle v-if="refresh" @click="fresh3"></el-button>
-        <el-button icon="el-icon-loading" circle v-else></el-button>
-      </div>
-
-      <div>
-        <el-table
-          :data="
-          list.filter(data => (!search || data.name.toLowerCase().includes(search.toLowerCase())||data.id==search.toLowerCase()))"
-          style="width: 100%"
-          v-loading="listLoading"
-          :border="true"
-          @row-dblclick="details"
-        >
-          <el-table-column
-            prop="id"
-            label="编号"
-            width="69">
-          </el-table-column>
-          <el-table-column
-            prop="createtime"
-            label="发布日期"
-            sortable
-            width="190">
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.createtime }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="任务名称"
-            width="150">
-          </el-table-column>
-          <el-table-column
-            label="完成形式"
-            width="150">
-            <template slot-scope="scope">
-              <span v-if="scope.row.form==1">实时数据</span>
-              <span v-else>历史数据采集</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="资格要求"
-            width="100">
-            <template slot-scope="scope">
-
-              <el-popover trigger="hover" placement="top">
-                <h4>其他要求</h4>
-                <p>{{ scope.row.message }}</p>
-                <div slot="reference" class="name-wrapper">
-                  <span v-if="scope.row.demand==1">小学</span>
-                  <span v-if="scope.row.demand==2">专科</span>
-                  <span v-if="scope.row.demand==3">本科</span>
-                  <span v-if="scope.row.demand==4">硕士及以上</span>
-                </div>
-              </el-popover>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="任务人数剩余"
-            width="80"
-            prop="members">
-
-          </el-table-column>
-          <el-table-column
-            prop="money"
-            label="任务赏金"
-            width="80">
-          </el-table-column>
-          <el-table-column
-            prop="deadline"
-            label="截止日期"
-            sortable
-            width="190"
-          >
-            <template slot-scope="scope">
-              <!--<i class="el-icon-time"></i>-->
-              <span style="margin-left: 10px">{{ scope.row.deadline }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="当前状态"
-            width="60">
-            <template slot-scope="scope">
-              <div style="font-size: 25px" v-if="scope.row.state==0">
-                <el-tooltip class="item" effect="dark" content="服务器正在准备派发" placement="top-start">
-                  <i class="el-icon-upload"></i>
-                </el-tooltip>
-              </div>
-              <div style="font-size: 25px" v-if="scope.row.state==1">
-                <el-tooltip class="item" effect="dark" content="服务器正在派发" placement="top-start">
-                  <i class="el-icon-position"></i>
-                </el-tooltip>
-              </div>
-              <div style="font-size: 25px" v-if="scope.row.state==2">
+              <div style="font-size: 25px" v-if="scope.row.state==2 && scope.row.distribute==0">
                 <el-tooltip class="item" effect="dark" content="服务器派发完毕" placement="top-start">
                   <i class="el-icon-circle-check"></i>
                 </el-tooltip>
               </div>
             </template>
+
           </el-table-column>
           <el-table-column
             align="right">
@@ -517,20 +244,14 @@
         missionDetails: [],
         workDetails: '',
         workerMap: true,
-        donePercent: 0
+        donePercent: 0,
+        tbChange:false
       }
     },
     watch: {
       index: function (newvalue, oldvalue) {
-        if (newvalue == 1) {
-          this.fresh()
-        }
-        if (newvalue == 2) {
-          this.fresh2()
-        }
-        if (newvalue == 3) {
-          this.fresh3()
-        }
+        this.refreshed(newvalue)
+        this.tbChange=!this.tbChange
       }
     },
     methods: {
@@ -722,7 +443,12 @@
                 vm.donePercent += 1
               }
             }
-            vm.donePercent = vm.donePercent * 100 / resp.data.length
+            if(resp.data.length<1){
+              vm.donePercent =0
+            }
+            else{
+              vm.donePercent = vm.donePercent * 100 / resp.data.length
+            }
           })
           .catch(function () {
             console.log('获取详细信息失败')

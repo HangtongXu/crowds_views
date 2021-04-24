@@ -92,9 +92,6 @@
     name: "index",
     props: ['index'],
     components: {Pagination},
-    created() {
-      this.refresh();
-    },
     data() {
       return {
         tableData: [],
@@ -250,13 +247,14 @@
             url: 'http://localhost:8090/userAckPay?uid='+vm.$store.getters.getUser.uid+'&money='+row.money+"&wid="+row.wid,
           })
             .then(function (resp) {
+              console.log(resp.data)
               if (resp.data == 'forbidden') {
                 vm.$message.warning('您的T币余额不足，请前往钱包充值！')
               }
               if (resp.data == 'error') {
                 vm.$message.warning('系统错误，请稍后再试')
               }
-              if (resp.data = 'success') {
+              if (resp.data == 'success') {
                 vm.$message.success('确认成功，进入下一流程')
                 vm.refresh(2)
               }

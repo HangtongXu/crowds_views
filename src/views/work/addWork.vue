@@ -33,7 +33,16 @@
           <el-option label="硕士以上" value="4"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="任务赏金" prop="money">
+      <el-form-item label="发布形式" prop="distribute">
+        <el-select v-model="form.distribute" placeholder="请选择形式" @change="handleDistributeChange">
+          <el-option label="实时发布" value="0"></el-option>
+          <el-option label="限时拍卖" value="1"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="赏金上限" prop="money" v-if="changeDistribute">
+        <el-input-number v-model.number="form.money" :step="1" :precision="1"></el-input-number>
+      </el-form-item>
+      <el-form-item label="任务赏金" prop="money" v-if="!changeDistribute">
         <el-input-number v-model.number="form.money" :step="1" :precision="1"></el-input-number>
       </el-form-item>
       <el-form-item label="人数上限" prop="members">
@@ -90,6 +99,7 @@
 
       return {
         showMap: false,
+        changeDistribute:false,
         form: {
           name: '',
           deadline: '',
@@ -102,7 +112,8 @@
           address: '',
           lat: '',
           lng: '',
-          members:0
+          members:0,
+          distribute:''
         },
         searchKey: '',
         suggestion: '',
@@ -132,11 +143,17 @@
             {pattern: /^(1|[1-9]\d?|)$/,message:'最少需要一个任务执行人'}
           ],
           address:[
-            {required:true,messahe:'采集地点不能为空'}
+            {required:true,message:'采集地点不能为空'}
+          ],
+          distribute:[
+            {required:true,message:'请选择任务发布方式'}
           ]
         },
         loading: false
       }
+    },
+    watch:{
+
     },
     methods: {
       correspond(flag, data) {
@@ -195,7 +212,8 @@
                 latitude: vm.form.lat,
                 message: vm.form.message,
                 members: vm.form.members,
-                uid: vm.$store.getters.getUser.uid
+                uid: vm.$store.getters.getUser.uid,
+                distribute:vm.form.distribute
               }
             })
               .then(function (resp) {
@@ -219,6 +237,15 @@
             return false;
           }
         });
+      },
+      handleDistributeChange(value){
+        console.log(value)
+        if(value=='1'){
+          this.changeDistribute=false;
+        }
+        else {
+          this.changeDistribute=true;
+        }
       }
     }
   }
@@ -227,7 +254,7 @@
 <style scoped>
   .box {
     width: 500px;
-    height: 600px;
+    height: 660px;
     border: 1px solid #DCDFE6;
     margin: 10px auto;
     padding: 20px 50px 20px 80px;
